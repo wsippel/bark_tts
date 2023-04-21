@@ -26,6 +26,8 @@ params = {
     'autoplay': True,
     'voice_pitch': 'medium',
     'voice_speed': 'medium',
+    'text_temp': 0.7,
+    'waveform_temp': 0.7,
     'local_cache_path': ''  # User can override the default cache path to something other via settings.json
 }
 
@@ -106,7 +108,7 @@ def output_modifier(string):
     else:
         # SAMPLE_RATE = 48000
         output_file = Path(f'extensions/bark_tts/outputs/{shared.character}_{int(time.time())}.wav')
-        audio_array = generate_audio(string, history_prompt=params['speaker'])
+        audio_array = generate_audio(string, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
         Audio(audio_array, rate=SAMPLE_RATE)
         write_wav(output_file, SAMPLE_RATE, audio_array)
 
@@ -144,7 +146,9 @@ def ui():
 
         show_text = gr.Checkbox(value=params['show_text'], label='Show message text under audio player')
         voice = gr.Dropdown(value=params['speaker'], choices=voices_by_gender, label='TTS voice')
-        # with gr.Row():
+        with gr.Row():
+            t_temp = gr.Slider(0, 1, value=params['text_temp'], step=0.01, label='Text temperature')
+            w_temp = gr.Slider(0, 1, value=params['waveform_temp'], step=0.01, label='Waveform temperature')
         #     v_pitch = gr.Dropdown(value=params['voice_pitch'], choices=voice_pitches, label='Voice pitch')
         #     v_speed = gr.Dropdown(value=params['voice_speed'], choices=voice_speeds, label='Voice speed')
 
@@ -170,5 +174,7 @@ def ui():
     activate.change(lambda x: params.update({"activate": x}), activate, None)
     autoplay.change(lambda x: params.update({"autoplay": x}), autoplay, None)
     voice.change(lambda x: params.update({"speaker": x}), voice, None)
+    t_temp.change(lambda x: params.update({"text_temp": x}), t_temp, None)
+    w_temp.change(lambda x: params.update({"waveform_temp": x}), w_temp, None)
     # v_pitch.change(lambda x: params.update({"voice_pitch": x}), v_pitch, None)
     # v_speed.change(lambda x: params.update({"voice_speed": x}), v_speed, None)
