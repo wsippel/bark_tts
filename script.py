@@ -18,23 +18,14 @@ from modules.html_generator import chat_html_wrapper
 params = {
     'activate': True,
     'speaker': 'en_speaker_1',
-    'language': 'en',
-    'model_id': 'v3_en',
-    'sample_rate': 24000,
-    'device': 'cpu',
     'show_text': True,
     'autoplay': True,
-    'voice_pitch': 'medium',
-    'voice_speed': 'medium',
-    'text_temp': 0.7,
-    'waveform_temp': 0.7,
-    'local_cache_path': ''  # User can override the default cache path to something other via settings.json
+    'text_temp': 0.6,
+    'waveform_temp': 0.6
 }
 
 current_params = params.copy()
 voices_by_gender = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
-voice_pitches = ['x-low', 'low', 'medium', 'high', 'x-high']
-voice_speeds = ['x-slow', 'slow', 'medium', 'fast', 'x-fast']
 streaming_state = shared.args.no_stream  # remember if chat streaming was enabled
 
 # Used for making text xml compatible, needed for voice pitch and speed control
@@ -106,7 +97,6 @@ def output_modifier(string):
     if string == '':
         string = '*Empty reply, try regenerating*'
     else:
-        # SAMPLE_RATE = 48000
         output_file = Path(f'extensions/bark_tts/outputs/{shared.character}_{int(time.time())}.wav')
         audio_array = generate_audio(string, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
         Audio(audio_array, rate=SAMPLE_RATE)
@@ -132,11 +122,6 @@ def bot_prefix_modifier(string):
     return string
 
 
-def setup():
-    print()
-    print('Initialising Bark TTS')
-
-
 def ui():
     # Gradio elements
     with gr.Accordion("Bark TTS"):
@@ -149,8 +134,6 @@ def ui():
         with gr.Row():
             t_temp = gr.Slider(0, 1, value=params['text_temp'], step=0.01, label='Text temperature')
             w_temp = gr.Slider(0, 1, value=params['waveform_temp'], step=0.01, label='Waveform temperature')
-        #     v_pitch = gr.Dropdown(value=params['voice_pitch'], choices=voice_pitches, label='Voice pitch')
-        #     v_speed = gr.Dropdown(value=params['voice_speed'], choices=voice_speeds, label='Voice speed')
 
         with gr.Row():
             convert = gr.Button('Permanently replace audios with the message texts')
@@ -176,5 +159,3 @@ def ui():
     voice.change(lambda x: params.update({"speaker": x}), voice, None)
     t_temp.change(lambda x: params.update({"text_temp": x}), t_temp, None)
     w_temp.change(lambda x: params.update({"waveform_temp": x}), w_temp, None)
-    # v_pitch.change(lambda x: params.update({"voice_pitch": x}), v_pitch, None)
-    # v_speed.change(lambda x: params.update({"voice_speed": x}), v_speed, None)
