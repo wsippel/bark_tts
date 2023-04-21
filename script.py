@@ -17,12 +17,12 @@ from modules.html_generator import chat_html_wrapper
 
 params = {
     'activate': True,
-    'speaker': 'en_56',
+    'speaker': 'en_speaker_1',
     'language': 'en',
     'model_id': 'v3_en',
-    'sample_rate': 48000,
+    'sample_rate': 24000,
     'device': 'cpu',
-    'show_text': False,
+    'show_text': True,
     'autoplay': True,
     'voice_pitch': 'medium',
     'voice_speed': 'medium',
@@ -30,7 +30,7 @@ params = {
 }
 
 current_params = params.copy()
-voices_by_gender = ['en_99', 'en_45', 'en_18', 'en_117', 'en_49', 'en_51', 'en_68', 'en_0', 'en_26', 'en_56', 'en_74', 'en_5', 'en_38', 'en_53', 'en_21', 'en_37', 'en_107', 'en_10', 'en_82', 'en_16', 'en_41', 'en_12', 'en_67', 'en_61', 'en_14', 'en_11', 'en_39', 'en_52', 'en_24', 'en_97', 'en_28', 'en_72', 'en_94', 'en_36', 'en_4', 'en_43', 'en_88', 'en_25', 'en_65', 'en_6', 'en_44', 'en_75', 'en_91', 'en_60', 'en_109', 'en_85', 'en_101', 'en_108', 'en_50', 'en_96', 'en_64', 'en_92', 'en_76', 'en_33', 'en_116', 'en_48', 'en_98', 'en_86', 'en_62', 'en_54', 'en_95', 'en_55', 'en_111', 'en_3', 'en_83', 'en_8', 'en_47', 'en_59', 'en_1', 'en_2', 'en_7', 'en_9', 'en_13', 'en_15', 'en_17', 'en_19', 'en_20', 'en_22', 'en_23', 'en_27', 'en_29', 'en_30', 'en_31', 'en_32', 'en_34', 'en_35', 'en_40', 'en_42', 'en_46', 'en_57', 'en_58', 'en_63', 'en_66', 'en_69', 'en_70', 'en_71', 'en_73', 'en_77', 'en_78', 'en_79', 'en_80', 'en_81', 'en_84', 'en_87', 'en_89', 'en_90', 'en_93', 'en_100', 'en_102', 'en_103', 'en_104', 'en_105', 'en_106', 'en_110', 'en_112', 'en_113', 'en_114', 'en_115']
+voices_by_gender = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
 voice_pitches = ['x-low', 'low', 'medium', 'high', 'x-high']
 voice_speeds = ['x-slow', 'slow', 'medium', 'fast', 'x-fast']
 streaming_state = shared.args.no_stream  # remember if chat streaming was enabled
@@ -105,8 +105,8 @@ def output_modifier(string):
         string = '*Empty reply, try regenerating*'
     else:
         # SAMPLE_RATE = 48000
-        output_file = Path(f'extensions/silero_tts/outputs/{shared.character}_{int(time.time())}.wav')
-        audio_array = generate_audio(string)
+        output_file = Path(f'extensions/bark_tts/outputs/{shared.character}_{int(time.time())}.wav')
+        audio_array = generate_audio(string, history_prompt=params['speaker'])
         Audio(audio_array, rate=SAMPLE_RATE)
         write_wav(output_file, SAMPLE_RATE, audio_array)
 
@@ -131,21 +131,22 @@ def bot_prefix_modifier(string):
 
 
 def setup():
+    print()
     print('Initialising Bark TTS')
 
 
 def ui():
     # Gradio elements
-    with gr.Accordion("Silero TTS"):
+    with gr.Accordion("Bark TTS"):
         with gr.Row():
             activate = gr.Checkbox(value=params['activate'], label='Activate TTS')
             autoplay = gr.Checkbox(value=params['autoplay'], label='Play TTS automatically')
 
         show_text = gr.Checkbox(value=params['show_text'], label='Show message text under audio player')
         voice = gr.Dropdown(value=params['speaker'], choices=voices_by_gender, label='TTS voice')
-        with gr.Row():
-            v_pitch = gr.Dropdown(value=params['voice_pitch'], choices=voice_pitches, label='Voice pitch')
-            v_speed = gr.Dropdown(value=params['voice_speed'], choices=voice_speeds, label='Voice speed')
+        # with gr.Row():
+        #     v_pitch = gr.Dropdown(value=params['voice_pitch'], choices=voice_pitches, label='Voice pitch')
+        #     v_speed = gr.Dropdown(value=params['voice_speed'], choices=voice_speeds, label='Voice speed')
 
         with gr.Row():
             convert = gr.Button('Permanently replace audios with the message texts')
@@ -169,5 +170,5 @@ def ui():
     activate.change(lambda x: params.update({"activate": x}), activate, None)
     autoplay.change(lambda x: params.update({"autoplay": x}), autoplay, None)
     voice.change(lambda x: params.update({"speaker": x}), voice, None)
-    v_pitch.change(lambda x: params.update({"voice_pitch": x}), v_pitch, None)
-    v_speed.change(lambda x: params.update({"voice_speed": x}), v_speed, None)
+    # v_pitch.change(lambda x: params.update({"voice_pitch": x}), v_pitch, None)
+    # v_speed.change(lambda x: params.update({"voice_speed": x}), v_speed, None)
