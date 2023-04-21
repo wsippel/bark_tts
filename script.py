@@ -25,21 +25,8 @@ params = {
 }
 
 current_params = params.copy()
-voices_by_gender = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
+voices = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
 streaming_state = shared.args.no_stream  # remember if chat streaming was enabled
-
-# Used for making text xml compatible, needed for voice pitch and speed control
-table = str.maketrans({
-    "<": "&lt;",
-    ">": "&gt;",
-    "&": "&amp;",
-    "'": "&apos;",
-    '"': "&quot;",
-})
-
-
-def xmlesc(txt):
-    return txt.translate(table)
 
 
 def remove_tts_from_history(name1, name2, mode):
@@ -130,7 +117,7 @@ def ui():
             autoplay = gr.Checkbox(value=params['autoplay'], label='Play TTS automatically')
 
         show_text = gr.Checkbox(value=params['show_text'], label='Show message text under audio player')
-        voice = gr.Dropdown(value=params['speaker'], choices=voices_by_gender, label='TTS voice')
+        voice = gr.Dropdown(value=params['speaker'], choices=voices, label='TTS voice')
         with gr.Row():
             t_temp = gr.Slider(0, 1, value=params['text_temp'], step=0.01, label='Text temperature')
             w_temp = gr.Slider(0, 1, value=params['waveform_temp'], step=0.01, label='Waveform temperature')
