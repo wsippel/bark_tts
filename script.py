@@ -2,6 +2,10 @@ import time
 from pathlib import Path
 
 import gradio as gr
+import numpy as np
+import nltk
+nltk.download('punkt')
+
 
 # import torch
 from bark import SAMPLE_RATE, generate_audio
@@ -12,14 +16,13 @@ from extensions.bark_tts import tts_preprocessor
 from modules import chat, shared
 from modules.html_generator import chat_html_wrapper
 
-# torch._C._jit_set_profiling_mode(False)
-
 
 params = {
     'activate': True,
-    'speaker': 'en_speaker_1',
+    'speaker': 'en_speaker_8',
     'show_text': True,
     'autoplay': True,
+    'tokenize': True,
     'text_temp': 0.6,
     'waveform_temp': 0.6
 }
@@ -85,7 +88,14 @@ def output_modifier(string):
         string = '*Empty reply, try regenerating*'
     else:
         output_file = Path(f'extensions/bark_tts/outputs/{shared.character}_{int(time.time())}.wav')
-        audio_array = generate_audio(string, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
+        if params['tokenize'] == True:
+            sentences = nltk.sent_tokenize(string)
+            audio_array = np.empty(0, dtype=np.int16)
+            for sentence in sentences:
+                audio_chunk = generate_audio(sentence, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
+                audio_array = np.concatenate((audio_array, audio_chunk))
+        else:
+            audio_array = generate_audio(sentence, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
         Audio(audio_array, rate=SAMPLE_RATE)
         write_wav(output_file, SAMPLE_RATE, audio_array)
 
@@ -115,6 +125,7 @@ def ui():
         with gr.Row():
             activate = gr.Checkbox(value=params['activate'], label='Activate TTS')
             autoplay = gr.Checkbox(value=params['autoplay'], label='Play TTS automatically')
+            tokenize = gr.Checkbox(value=params['tokenize'], label='Tokenize the reply')
 
         show_text = gr.Checkbox(value=params['show_text'], label='Show message text under audio player')
         voice = gr.Dropdown(value=params['speaker'], choices=voices, label='TTS voice')
@@ -143,6 +154,7 @@ def ui():
     # Event functions to update the parameters in the backend
     activate.change(lambda x: params.update({"activate": x}), activate, None)
     autoplay.change(lambda x: params.update({"autoplay": x}), autoplay, None)
+    tokenize.change(lambda x: params.update({"tokenize": x}), autoplay, None)
     voice.change(lambda x: params.update({"speaker": x}), voice, None)
     t_temp.change(lambda x: params.update({"text_temp": x}), t_temp, None)
     w_temp.change(lambda x: params.update({"waveform_temp": x}), w_temp, None)
