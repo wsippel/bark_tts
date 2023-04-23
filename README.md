@@ -24,10 +24,10 @@ If you're on Windows and used the one-click installer, these instructions by Red
 
 > Assuming you used the one-click installer you should have a file named micromamba-cmd.bat sitting outside your text-generation-webui folder next to the start-webui.bat file, if you open that batch file you get a cmd terminal that as far as I can tell is properly setup to install things to the environment, from there you can just use the commands:
 >```
-cd text-generation-webui\extensions
-git clone https://github.com/wsippel/bark_tts.git
-pip install -r bark_tts/requirements.txt
-```
+>cd text-generation-webui\extensions
+>git clone https://github.com/wsippel/bark_tts.git
+>pip install -r bark_tts/requirements.txt
+>```
 >Once that is done you can close it and make sure you add --extension bark_tts to your start-webui.bat. It should now load the extension just fine.
 
 Soure: https://www.reddit.com/r/Oobabooga/comments/12udbiu/comment/jh9jqav/
