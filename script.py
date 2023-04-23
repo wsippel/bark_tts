@@ -1,6 +1,7 @@
 import time
 from pathlib import Path
 
+import glob
 import gradio as gr
 import numpy as np
 import nltk
@@ -27,8 +28,11 @@ params = {
     'waveform_temp': 0.6
 }
 
+
 current_params = params.copy()
-voices = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
+default_voices = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
+custom_voices = glob.glob('extensions/bark_tts/voices/*.npz')
+voices = custom_voices + default_voices
 streaming_state = shared.args.no_stream  # remember if chat streaming was enabled
 
 
