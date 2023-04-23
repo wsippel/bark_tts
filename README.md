@@ -30,4 +30,4 @@ If you're on Windows and used the one-click installer, these instructions by Red
 >```
 >Once that is done you can close it and make sure you add --extension bark_tts to your start-webui.bat. It should now load the extension just fine.
 
-Soure: https://www.reddit.com/r/Oobabooga/comments/12udbiu/comment/jh9jqav/
+Source: https://www.reddit.com/r/Oobabooga/comments/12udbiu/comment/jh9jqav/
