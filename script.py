@@ -45,7 +45,7 @@ if Path('extensions/bark_tts/bark_tts.ini').is_file() == False:
         configfileObj.close()
 
     print()
-    print("Config file 'bark_tts.ini' recreated")
+    print("Config file 'bark_tts.ini' recreated with default settings")
 
 def read_config():
     config_file.read('extensions/bark_tts/bark_tts.ini')
@@ -55,7 +55,7 @@ config = read_config()
 
 def update_config(setting, value):
     global config
-    config_file['bark_tts'][setting] = value
+    config_file['bark_tts'][setting] = str(value)
     with open('extensions/bark_tts/bark_tts.ini','w') as configfileObj:
         config_file.write(configfileObj)
         configfileObj.flush()
@@ -206,18 +206,18 @@ def ui():
     convert.click(lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=True)], None, convert_arr)
     convert_confirm.click(lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)], None, convert_arr)
     convert_confirm.click(remove_tts_from_history, [shared.gradio[k] for k in ['name1', 'name2', 'mode']], shared.gradio['display'])
-    convert_confirm.click(lambda: chat.save_history(timestamp=False), [], [], show_progress=False)
+    convert_confirm.click(lambda: chat.save_history('instruct', timestamp=False), [], [], show_progress=False)
     convert_cancel.click(lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)], None, convert_arr)
 
     # Toggle message text in history
-    show_text.change(lambda x: params.update({"show_text": x}), show_text, None)
+    show_text.change(lambda x: [params.update({"show_text": x}), update_config('show_text', x)], show_text, None)
     show_text.change(toggle_text_in_history, [shared.gradio[k] for k in ['name1', 'name2', 'mode']], shared.gradio['display'])
-    show_text.change(lambda: chat.save_history(timestamp=False), [], [], show_progress=False)
+    show_text.change(lambda: chat.save_history(mode='instruct', timestamp=False), [], [], show_progress=False)
 
     # Event functions to update the parameters in the backend
-    activate.change(lambda x: params.update({"activate": x}), activate, None)
-    autoplay.change(lambda x: params.update({"autoplay": x}), autoplay, None)
-    tokenize.change(lambda x: params.update({"tokenize": x}), autoplay, None)
+    activate.change(lambda x: [params.update({"activate": x}), update_config('activate', x)], activate, None)
+    autoplay.change(lambda x: [params.update({"autoplay": x}), update_config('autoplay', x)], autoplay, None)
+    tokenize.change(lambda x: [params.update({"tokenize": x}), update_config('tokenize', x)], autoplay, None)
     voice.change(lambda x: [params.update({"speaker": x}), update_config('speaker', x) ], voice, None)
-    t_temp.change(lambda x: params.update({"text_temp": x}), t_temp, None)
-    w_temp.change(lambda x: params.update({"waveform_temp": x}), w_temp, None)
+    t_temp.change(lambda x: [params.update({"text_temp": x}), update_config('text_temp', x)], t_temp, None)
+    w_temp.change(lambda x: [params.update({"waveform_temp": x}), update_config('waveform_temp', x) ], w_temp, None)
