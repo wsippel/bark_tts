@@ -31,3 +31,6 @@ If you're on Windows and used the one-click installer, these instructions by Red
 >Once that is done you can close it and make sure you add --extension bark_tts to your start-webui.bat. It should now load the extension just fine.
 
 Source: https://www.reddit.com/r/Oobabooga/comments/12udbiu/comment/jh9jqav/
+
+## Configuration
+bark_tts now saves all settings to a configuration file named `bark_tts.ini`, so they are persistant between runs. Additionally, manually editing the `bark_internals` section in `bark_tts.ini` allows you to switch to Bark's smaller models (for users with limited VRAM), or move all or parts of the processing to the CPU (very slow). By default, bark_tts always uses the highest quality models and generates on the GPU if possible. Users with lower-end or unsupported hardware might want to edit the configuration file. Once Suno provides proper documentation, I will update this section to clarify what the individual performance settings do.
