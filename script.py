@@ -1,5 +1,6 @@
 import time
 from pathlib import Path
+import configparser
 
 import glob
 import gradio as gr
@@ -7,9 +8,7 @@ import numpy as np
 import nltk
 nltk.download('punkt')
 
-
-# import torch
-from bark import SAMPLE_RATE, generate_audio
+from bark import SAMPLE_RATE, generate_audio, preload_models
 from IPython.display import Audio
 from scipy.io.wavfile import write as write_wav
 
@@ -18,15 +17,75 @@ from modules import chat, shared
 from modules.html_generator import chat_html_wrapper
 
 
+config_file = configparser.ConfigParser()
+
+if Path('extensions/bark_tts/bark_tts.ini').is_file() == False:
+
+    config_file.add_section('bark_tts')
+    config_file.set('bark_tts', 'speaker', 'en_speaker_8')
+    config_file.set('bark_tts', 'activate', 'True')
+    config_file.set('bark_tts', 'show_text', 'True')
+    config_file.set('bark_tts', 'autoplay', 'True')
+    config_file.set('bark_tts', 'tokenize', 'True')
+    config_file.set('bark_tts', 'text_temp', '0.6')
+    config_file.set('bark_tts', 'waveform_temp', '0.6')
+    config_file.add_section('bark_internals')
+    config_file.set('bark_internals', 'text_use_gpu', 'True')
+    config_file.set('bark_internals', 'text_use_small', 'False')
+    config_file.set('bark_internals', 'coarse_use_gpu', 'True')
+    config_file.set('bark_internals', 'coarse_use_small', 'False')
+    config_file.set('bark_internals', 'fine_use_gpu', 'True')
+    config_file.set('bark_internals', 'fine_use_small', 'False')
+    config_file.set('bark_internals', 'codec_use_gpu', 'True')
+    config_file.set('bark_internals', 'force_reload', 'False')
+
+    with open(r'extensions/bark_tts/bark_tts.ini', 'w') as configfileObj:
+        config_file.write(configfileObj)
+        configfileObj.flush()
+        configfileObj.close()
+
+    print()
+    print("Config file 'bark_tts.ini' recreated")
+
+def read_config():
+    config_file.read('extensions/bark_tts/bark_tts.ini')
+    return config_file
+
+config = read_config()
+
+def update_config(setting, value):
+    global config
+    config_file['bark_tts'][setting] = value
+    with open('extensions/bark_tts/bark_tts.ini','w') as configfileObj:
+        config_file.write(configfileObj)
+        configfileObj.flush()
+        configfileObj.close()
+    config = read_config()
+
+
 params = {
-    'activate': True,
-    'speaker': 'en_speaker_8',
-    'show_text': True,
-    'autoplay': True,
-    'tokenize': True,
-    'text_temp': 0.6,
-    'waveform_temp': 0.6
+    'speaker': config['bark_tts']['speaker'],
+    'activate': config['bark_tts'].getboolean('activate'),
+    'show_text': config['bark_tts'].getboolean('show_text'),
+    'autoplay': config['bark_tts'].getboolean('autoplay'),
+    'tokenize': config['bark_tts'].getboolean('tokenize'),
+    'text_temp': config['bark_tts'].getfloat('text_temp'),
+    'waveform_temp': config['bark_tts'].getfloat('waveform_temp')
 }
+
+
+print()
+print('Loading Bark models...')
+preload_models(
+    text_use_gpu = config['bark_internals'].getboolean('text_use_gpu'),
+    text_use_small = config['bark_internals'].getboolean('text_use_small'),
+    coarse_use_gpu = config['bark_internals'].getboolean('coarse_use_gpu'),
+    coarse_use_small = config['bark_internals'].getboolean('coarse_use_small'),
+    fine_use_gpu = config['bark_internals'].getboolean('fine_use_gpu'),
+    fine_use_small = config['bark_internals'].getboolean('fine_use_small'),
+    codec_use_gpu = config['bark_internals'].getboolean('codec_use_gpu'),
+    force_reload = config['bark_internals'].getboolean('force_reload')
+)
 
 
 current_params = params.copy()
@@ -159,6 +218,6 @@ def ui():
     activate.change(lambda x: params.update({"activate": x}), activate, None)
     autoplay.change(lambda x: params.update({"autoplay": x}), autoplay, None)
     tokenize.change(lambda x: params.update({"tokenize": x}), autoplay, None)
-    voice.change(lambda x: params.update({"speaker": x}), voice, None)
+    voice.change(lambda x: [params.update({"speaker": x}), update_config('speaker', x) ], voice, None)
     t_temp.change(lambda x: params.update({"text_temp": x}), t_temp, None)
     w_temp.change(lambda x: params.update({"waveform_temp": x}), w_temp, None)
