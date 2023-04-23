@@ -20,7 +20,7 @@ python server.py --extension bark_tts
 ```
 
 ### Windows
-If you're on Windows and used the one-click installer, these instructions by Reddit user TomCoperations post should work:
+If you're on Windows and used the one-click installer, these instructions by Reddit user TomCoperations should work:
 
 > Assuming you used the one-click installer you should have a file named micromamba-cmd.bat sitting outside your text-generation-webui folder next to the start-webui.bat file, if you open that batch file you get a cmd terminal that as far as I can tell is properly setup to install things to the environment, from there you can just use the commands:
 >```
