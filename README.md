@@ -3,7 +3,9 @@
 This extension uses [suno-ai/bark](https://github.com/suno-ai/bark/) to add audio synthesis to [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui). Bark is a powerful transformer-based text-to-audio solution, capable of producing realistic speech output with natural inflection and cadence, and can even generate nonverbal communication such as laughing, sighing or crying. Emotions can be controlled using a trigger word in brackets, such as `[laughs]`. Bark is limited to generating up to 15 seconds of audio at a time, so bark_tts uses NLTK to split text into individual sentences by default. This approach doesn't work well with all speakers, and adds additional overhead, so I made it a toggle. I'm sure there's room for improvement here. Also, be aware that Bark has pretty steep hardware requirements, it needs several gigabytes of VRAM and a flagship GPU to achieve realtime generation speeds.
 
 ## Troubleshooting
-Bark was only just released and the API isn't stable yet. I try to implement the latest features as they become available, which is going to break installations. You should ideally reinstall Bark whenever you update the extension for the time being, or at least whenever something breaks. Just `pip uninstall suno-bark`, then repeat the `pip install -r requirements.txt` step as outlined in the installation instructions.
+Bark was only just released and the API isn't stable yet. I try to implement the latest features as they become available, which is going to break installations. You should ideally reinstall Bark whenever you update the extension for the time being, or at least whenever something breaks. Just `pip uninstall suno-bark`, then repeat the `pip install -r requirements.txt` step as outlined in the installation instructions. 
+
+Also note that this extension, just like several of Oobabooga's built-in extensions, only works in chat and cai-chat mode, so make sure you launch the web UI with the `--chat` or `--cai-chat` argument.
 
 ## Custom speakers
 If you have custom speakers from one of the Bark forks, just put the `.npz` files in the `voices` folder and restart the web UI. They'll be at the top of the speaker dropdown. Make sure the filenames start with the appropriate language prefix. For example, a custom English speaker named `mycustomspeaker` should be named `en_mycustomspeaker.npz`.
@@ -19,7 +21,7 @@ cd extensions
 git clone https://github.com/wsippel/bark_tts.git
 pip install -r bark_tts/requirements.txt
 cd ..
-python server.py --extension bark_tts
+python server.py --chat --extension bark_tts
 ```
 
 ### Windows

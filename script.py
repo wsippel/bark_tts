@@ -88,7 +88,6 @@ preload_models(
 )
 
 
-current_params = params.copy()
 default_voices = ['en_speaker_0', 'en_speaker_1', 'en_speaker_2', 'en_speaker_3', 'en_speaker_4', 'en_speaker_5', 'en_speaker_6', 'en_speaker_7', 'en_speaker_8', 'en_speaker_9']
 custom_voices = glob.glob('extensions/bark_tts/voices/*.npz')
 voices = custom_voices + default_voices
@@ -182,6 +181,11 @@ def bot_prefix_modifier(string):
     return string
 
 
+def setup():
+    global current_params
+    current_params = params.copy()
+
+
 def ui():
     # Gradio elements
     with gr.Accordion("Bark TTS"):
@@ -206,13 +210,13 @@ def ui():
     convert.click(lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=True)], None, convert_arr)
     convert_confirm.click(lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)], None, convert_arr)
     convert_confirm.click(remove_tts_from_history, [shared.gradio[k] for k in ['name1', 'name2', 'mode']], shared.gradio['display'])
-    convert_confirm.click(lambda: chat.save_history('instruct', timestamp=False), [], [], show_progress=False)
+    convert_confirm.click(lambda: chat.save_history(mode='chat', timestamp=False), [], [], show_progress=False)
     convert_cancel.click(lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)], None, convert_arr)
 
     # Toggle message text in history
     show_text.change(lambda x: [params.update({"show_text": x}), update_config('show_text', x)], show_text, None)
     show_text.change(toggle_text_in_history, [shared.gradio[k] for k in ['name1', 'name2', 'mode']], shared.gradio['display'])
-    show_text.change(lambda: chat.save_history(mode='instruct', timestamp=False), [], [], show_progress=False)
+    show_text.change(lambda: chat.save_history(mode='chat', timestamp=False), [], [], show_progress=False)
 
     # Event functions to update the parameters in the backend
     activate.change(lambda x: [params.update({"activate": x}), update_config('activate', x)], activate, None)
