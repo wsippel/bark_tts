@@ -153,11 +153,21 @@ def output_modifier(string):
         if params['tokenize'] == True:
             sentences = nltk.sent_tokenize(string)
             audio_array = np.empty(0, dtype=np.int16)
+            chunks = ['']
+            token_counter = 0
             for sentence in sentences:
-                audio_chunk = generate_audio(sentence, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
+                current_tokens = len(nltk.Text(sentence))
+                if token_counter + current_tokens <= 250:
+                    token_counter = token_counter + current_tokens
+                    chunks[-1] = chunks[-1] + " " + sentence
+                else:
+                    chunks.append(sentence)
+                    token_counter = current_tokens
+            for chunk in chunks:
+                audio_chunk = generate_audio(chunk, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
                 audio_array = np.concatenate((audio_array, audio_chunk))
         else:
-            audio_array = generate_audio(sentence, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
+            audio_array = generate_audio(string, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
         Audio(audio_array, rate=SAMPLE_RATE)
         write_wav(output_file, SAMPLE_RATE, audio_array)
 
