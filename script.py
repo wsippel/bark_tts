@@ -161,8 +161,8 @@ def output_modifier(string):
                     token_counter = token_counter + current_tokens
                     chunks[-1] = chunks[-1] + " " + sentence
                 else:
-                    chunks.append(sentence)
                     token_counter = current_tokens
+                    chunks.append(sentence)
             for chunk in chunks:
                 audio_chunk = generate_audio(chunk, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
                 audio_array = np.concatenate((audio_array, audio_chunk))
@@ -220,13 +220,13 @@ def ui():
     convert.click(lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=True)], None, convert_arr)
     convert_confirm.click(lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)], None, convert_arr)
     convert_confirm.click(remove_tts_from_history, [shared.gradio[k] for k in ['name1', 'name2', 'mode']], shared.gradio['display'])
-    convert_confirm.click(lambda: chat.save_history(mode='chat', timestamp=False), [], [], show_progress=False)
+    convert_confirm.click(lambda: chat.save_history(timestamp=False), [], [], show_progress=False)
     convert_cancel.click(lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=False)], None, convert_arr)
 
     # Toggle message text in history
     show_text.change(lambda x: [params.update({"show_text": x}), update_config('show_text', x)], show_text, None)
     show_text.change(toggle_text_in_history, [shared.gradio[k] for k in ['name1', 'name2', 'mode']], shared.gradio['display'])
-    show_text.change(lambda: chat.save_history(mode='chat', timestamp=False), [], [], show_progress=False)
+    show_text.change(lambda: chat.save_history(timestamp=False), [], [], show_progress=False)
 
     # Event functions to update the parameters in the backend
     activate.change(lambda x: [params.update({"activate": x}), update_config('activate', x)], activate, None)
