@@ -146,6 +146,17 @@ def output_modifier(string):
     original_string = string
     string = tts_preprocessor.preprocess(string)
 
+    # Added this lines so I can use My SD prompt makers characters and other characters that format the text prior to pass it to NTLK 
+    def preprocess_text(string):
+        # Check if the text contains a comma and a parenthesis, indicating it's in your specific format
+        if "," in string or "(" in string or ")" in string or ":" in string:
+            # Replace commas with periods and remove parentheses and thatdouble dot symbol
+            string = string.replace(",", ".").replace("(", "").replace(")", "").replace(":", "")
+        return string
+    print(string)
+    
+    string = preprocess_text(string)
+
     if string == '':
         string = '*Empty reply, try regenerating*'
     else:
