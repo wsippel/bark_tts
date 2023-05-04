@@ -18,6 +18,7 @@ from modules.html_generator import chat_html_wrapper
 
 
 config_file = configparser.ConfigParser()
+wav_idx=0
 
 if Path('extensions/bark_tts/bark_tts.ini').is_file() == False:
 
@@ -132,7 +133,7 @@ def output_modifier(string):
     This function is applied to the model outputs.
     """
 
-    global model, current_params, streaming_state
+    global model, current_params, streaming_state, wav_idx
 
     for i in params:
         if params[i] != current_params[i]:
@@ -144,24 +145,26 @@ def output_modifier(string):
         return string
 
     original_string = string
-    string = tts_preprocessor.preprocess(string)
 
-    # Added this lines so I can use My SD prompt makers characters and other characters that format the text prior to pass it to NTLK 
-    def preprocess_text(string):
-        # Check if the text contains a comma and a parenthesis, indicating it's in your specific format
-        if "," in string or "(" in string or ")" in string or ":" in string:
-            # Replace commas with periods and remove parentheses and thatdouble dot symbol
-            string = string.replace(",", ".").replace("(", "").replace(")", "").replace(":", "")
-        return string
-    print(string)
-    
-    string = preprocess_text(string)
+    string = tts_preprocessor.preprocess(string)
+   
 
     if string == '':
         string = '*Empty reply, try regenerating*'
     else:
-        output_file = Path(f'extensions/bark_tts/outputs/{shared.character}_{int(time.time())}.wav')
+        output_file = Path(f'extensions/bark_tts/outputs/{shared.character}_{wav_idx:06d}.wav')
+
         if params['tokenize'] == True:
+            # gets rid of preformated before passing to tokenizer nltk
+            def preprocess_text(string):
+                # Check if the text contains a comma and a parenthesis, indicating it's in your specific format
+                if "," in string or "(" in string or ")" in string or ":" in string:
+                    # Replace commas with periods and remove parentheses
+                    string = string.replace(",", ".").replace("(", "").replace(")", "").replace(":", "")
+                return string
+            print(string)
+            
+            string = preprocess_text(string)            
             sentences = nltk.sent_tokenize(string)
             audio_array = np.empty(0, dtype=np.int16)
             chunks = ['']
@@ -177,8 +180,11 @@ def output_modifier(string):
             for chunk in chunks:
                 audio_chunk = generate_audio(chunk, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
                 audio_array = np.concatenate((audio_array, audio_chunk))
+                
+            
         else:
             audio_array = generate_audio(string, history_prompt=params['speaker'], text_temp=params['text_temp'], waveform_temp=params['waveform_temp'])
+        
         Audio(audio_array, rate=SAMPLE_RATE)
         write_wav(output_file, SAMPLE_RATE, audio_array)
 
@@ -188,7 +194,8 @@ def output_modifier(string):
             string += f'\n\n{original_string}'
 
     shared.processing_message = "*Is typing...*"
-    shared.args.no_stream = streaming_state  # restore the streaming option to the previous value
+    shared.args.no_stream = streaming_state # restore the streaming option to the previous value
+    wav_idx += 1  
     return string
 
 
