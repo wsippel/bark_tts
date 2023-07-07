@@ -162,7 +162,7 @@ def output_modifier(string):
         string = '*Empty reply, try regenerating*'
     else:
         output_file = Path(
-            f'extensions/bark_tts/outputs/{shared.character}_{int(time.time())}.wav')
+            f'extensions/bark_tts/outputs/_{int(time.time())}.wav')
         if params['tokenize'] == True:
             sentences = nltk.sent_tokenize(string)
             audio_array = np.empty(0, dtype=np.int16)
